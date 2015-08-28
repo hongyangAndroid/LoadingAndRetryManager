@@ -49,12 +49,16 @@ public class MainActivity extends AppCompatActivity
                 {
                     e.printStackTrace();
                 }
-                if (Math.random() > 0.6)
+                double v = Math.random();
+                if (v > 0.8)
                 {
                     mLoadingAndRetryManager.showContent();
-                } else
+                } else if (v > 0.4)
                 {
                     mLoadingAndRetryManager.showRetry();
+                } else
+                {
+                    mLoadingAndRetryManager.showEmpty();
                 }
             }
         }.start();

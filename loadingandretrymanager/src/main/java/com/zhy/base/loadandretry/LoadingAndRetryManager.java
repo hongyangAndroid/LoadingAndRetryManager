@@ -3,7 +3,6 @@ package com.zhy.base.loadandretry;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,6 +14,7 @@ public class LoadingAndRetryManager
     public static final int NO_LAYOUT_ID = 0;
     public static int BASE_LOADING_LAYOUT_ID = NO_LAYOUT_ID;
     public static int BASE_RETRY_LAYOUT_ID = NO_LAYOUT_ID;
+    public static int BASE_EMPTY_LAYOUT_ID = NO_LAYOUT_ID;
 
     public LoadingAndRetryLayout mLoadingAndRetryLayout;
 
@@ -55,7 +55,6 @@ public class LoadingAndRetryManager
             throw new IllegalArgumentException("the argument's type must be Fragment or Activity: init(context)");
         }
         int childCount = contentParent.getChildCount();
-        Log.e("TAG", "childCount = " + childCount);
         //get contentParent
         int index = 0;
         View oldContent;
@@ -81,12 +80,34 @@ public class LoadingAndRetryManager
         ViewGroup.LayoutParams lp = oldContent.getLayoutParams();
         contentParent.addView(loadingAndRetryLayout, index, lp);
         loadingAndRetryLayout.setContentView(oldContent);
-        // setup loading layout
+        // setup loading,retry,empty layout
         setupLoadingLayout(listener, loadingAndRetryLayout);
         setupRetryLayout(listener, loadingAndRetryLayout);
+        setupEmptyLayout(listener, loadingAndRetryLayout);
         //callback
         listener.setRetryEvent(loadingAndRetryLayout.getRetryView());
+        listener.setLoadingEvent(loadingAndRetryLayout.getLoadingView());
+        listener.setEmptyEvent(loadingAndRetryLayout.getEmptyView());
         mLoadingAndRetryLayout = loadingAndRetryLayout;
+    }
+
+    private void setupEmptyLayout(OnLoadingAndRetryListener listener, LoadingAndRetryLayout loadingAndRetryLayout)
+    {
+        if (listener.isSetEmptyLayout())
+        {
+            int layoutId = listener.generateEmptyLayoutId();
+            if (layoutId != NO_LAYOUT_ID)
+            {
+                loadingAndRetryLayout.setEmptyView(layoutId);
+            } else
+            {
+                loadingAndRetryLayout.setEmptyView(listener.generateEmptyLayout());
+            }
+        } else
+        {
+            if (BASE_EMPTY_LAYOUT_ID != NO_LAYOUT_ID)
+                loadingAndRetryLayout.setEmptyView(BASE_EMPTY_LAYOUT_ID);
+        }
     }
 
     private void setupLoadingLayout(OnLoadingAndRetryListener listener, LoadingAndRetryLayout loadingAndRetryLayout)
@@ -145,6 +166,11 @@ public class LoadingAndRetryManager
     public void showContent()
     {
         mLoadingAndRetryLayout.showContent();
+    }
+
+    public void showEmpty()
+    {
+        mLoadingAndRetryLayout.showEmpty();
     }
 
 
